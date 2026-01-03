@@ -2,18 +2,22 @@
 
 import { useEffect, useState } from "react"
 import { DailyTransactions } from "@/components/transactions/daily-transactions"
-import { TransactionGroup, ApiTransactionGroupResponse } from '@/lib/types/transactions'
+import { Transaction, TransactionGroup, ApiTransactionGroupResponse } from '@/lib/types/transactions'
+import { LoadingOverlay } from "@/components/ui/loading-overlay"
+import { TransactionDetailDialog } from "@/components/transactions/transaction-detail-dialog"
 
 export default function TransactionsPage() {
   const [transactionGroups, setTransactions] = useState<TransactionGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:3001/api/transactions")
+        const response = await fetch(`${process.env.NEXT_PUBLIC_MONEY_MANAGEMENT_API_URL}/api/transactions`)
 
         if (!response.ok) {
           throw new Error(`Failed to fetch transactions: ${response.statusText}`)
@@ -38,20 +42,26 @@ export default function TransactionsPage() {
     fetchTransactions()
   }, [])
 
+  const handleTransactionClick = (transaction: Transaction) => {
+    setSelectedTransaction(transaction)
+    setDialogOpen(true)
+  }
+
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      <LoadingOverlay isLoading={loading} />
+      <TransactionDetailDialog
+        transaction={selectedTransaction}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
+
       <div className="pb-10">
         <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
         <p className="text-muted-foreground">
           View and manage your financial transactions
         </p>
       </div>
-
-      {loading && (
-        <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading transactions...</p>
-        </div>
-      )}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4">
@@ -71,6 +81,7 @@ export default function TransactionsPage() {
                 key={trx.date}
                 date={trx.date}
                 transactions={trx.transactions}
+                onTransactionClick={handleTransactionClick}
               />
             ))
           )}

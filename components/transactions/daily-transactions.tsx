@@ -1,23 +1,12 @@
-
-interface Transaction {
-  id: string
-  date: string
-  description: string
-  amount: number
-  category_id: string
-  category_name: string
-  account_id: string
-  account_name: string
-  type: "income" | "expense"
-  currency: string
-}
+import { Transaction } from '@/lib/types/transactions'
 
 interface DailyTransactionsProps {
   date: string
   transactions: Transaction[]
+  onTransactionClick?: (transaction: Transaction) => void
 }
 
-export function DailyTransactions({ date, transactions }: DailyTransactionsProps) {
+export function DailyTransactions({ date, transactions, onTransactionClick }: DailyTransactionsProps) {
   const totalIncome = transactions
     .filter(t => t.type === "income")
     .reduce((sum, t) => sum + t.amount, 0)
@@ -56,7 +45,7 @@ export function DailyTransactions({ date, transactions }: DailyTransactionsProps
 
       <div className="divide-y">
         {transactions.map((transaction) => (
-          <div key={transaction.id} className="grid grid-cols-[150px_1fr_150px] items-center gap-4 px-4 py-1 hover:bg-muted/30 cursor-pointer">
+          <div key={transaction.id} className="grid grid-cols-[150px_1fr_150px] items-center gap-4 px-4 py-1 hover:bg-muted/30 cursor-pointer" onClick={() => onTransactionClick?.(transaction)}>
             <div>
               <p className="font-medium text-sm text-muted-foreground">{transaction.category_name}</p>
             </div>
