@@ -2,28 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { DailyTransactions } from "@/components/transactions/daily-transactions"
-
-interface Transaction {
-  id: string
-  date: string
-  description: string
-  amount: number
-  category_id: string
-  category_name: string
-  account_id: string
-  account_name: string
-  type: "income" | "expense"
-  currency: string
-}
-
-interface ApiResponse {
-  success: boolean
-  data: Transaction[]
-  count: number
-}
+import { TransactionGroup, ApiTransactionGroupResponse } from '@/lib/types/transactions'
 
 export default function TransactionsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [transactionGroups, setTransactions] = useState<TransactionGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -37,7 +19,7 @@ export default function TransactionsPage() {
           throw new Error(`Failed to fetch transactions: ${response.statusText}`)
         }
 
-        const apiResponse: ApiResponse = await response.json()
+        const apiResponse: ApiTransactionGroupResponse = await response.json()
 
         if (apiResponse.success) {
           setTransactions(apiResponse.data)
@@ -55,15 +37,6 @@ export default function TransactionsPage() {
 
     fetchTransactions()
   }, [])
-
-  const groupedTransactions = transactions.reduce((acc, transaction) => {
-    const date = transaction.date
-    if (!acc[date]) {
-      acc[date] = []
-    }
-    acc[date].push(transaction)
-    return acc
-  }, {} as Record<string, Transaction[]>)
 
   return (
     <div className="w-full">
@@ -88,16 +61,16 @@ export default function TransactionsPage() {
 
       {!loading && !error && (
         <div className="space-y-4">
-          {Object.keys(groupedTransactions).length === 0 ? (
+          {transactionGroups.length === 0 ? (
             <div className="rounded-lg border p-8 text-center text-muted-foreground">
               No transactions found
             </div>
           ) : (
-            Object.entries(groupedTransactions).map(([date, dayTransactions]) => (
+            transactionGroups.map((trx) => (
               <DailyTransactions
-                key={date}
-                date={date}
-                transactions={dayTransactions}
+                key={trx.date}
+                date={trx.date}
+                transactions={trx.transactions}
               />
             ))
           )}

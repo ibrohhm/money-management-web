@@ -28,10 +28,16 @@ export function DailyTransactions({ date, transactions }: DailyTransactionsProps
 
   const currency = transactions[0]?.currency || "IDR"
 
+  const [year, month, day] = date.split('-')
+  const formattedDate = `${month}/${year}`
+
   return (
     <div className="space-y-2 border">
       <div className="flex items-center justify-between border-b bg-muted/50 px-4 py-3">
-        <h3 className="font-semibold">{date}</h3>
+        <div className="flex items-baseline gap-2">
+          <h3 className="text-2xl font-bold">{day}</h3>
+          <span className="text-sm text-muted-foreground">{formattedDate}</span>
+        </div>
         <div className="flex gap-6 text-sm">
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Income:</span>
@@ -50,9 +56,9 @@ export function DailyTransactions({ date, transactions }: DailyTransactionsProps
 
       <div className="divide-y">
         {transactions.map((transaction) => (
-          <div key={transaction.id} className="grid grid-cols-[150px_1fr_150px] items-center gap-4 px-4 py-1 hover:bg-muted/30">
+          <div key={transaction.id} className="grid grid-cols-[150px_1fr_150px] items-center gap-4 px-4 py-1 hover:bg-muted/30 cursor-pointer">
             <div>
-              <p className="font-medium">{transaction.category_name}</p>
+              <p className="font-medium text-sm text-muted-foreground">{transaction.category_name}</p>
             </div>
             <div>
               <p className="font-medium">{transaction.description}</p> 
