@@ -5,6 +5,8 @@ import { DailyTransactions } from "@/components/transactions/daily-transactions"
 import { Transaction, TransactionGroup, ApiTransactionGroupResponse } from '@/lib/types/transactions'
 import { LoadingOverlay } from "@/components/ui/loading-overlay"
 import { TransactionDetailDialog } from "@/components/transactions/transaction-detail-dialog"
+import { Plus } from "lucide-react"
+import { colors } from '@/lib/colors'
 
 export default function TransactionsPage() {
   const [transactionGroups, setTransactions] = useState<TransactionGroup[]>([])
@@ -44,6 +46,11 @@ export default function TransactionsPage() {
 
   const handleTransactionClick = (transaction: Transaction) => {
     setSelectedTransaction(transaction)
+    setDialogOpen(true)
+  }
+
+  const handleAddTransaction = () => {
+    setSelectedTransaction(null)
     setDialogOpen(true)
   }
 
@@ -87,6 +94,15 @@ export default function TransactionsPage() {
           )}
         </div>
       )}
+
+      <button
+        onClick={handleAddTransaction}
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full text-white shadow-lg hover:brightness-110 active:brightness-90 transition-all flex items-center justify-center cursor-pointer"
+        style={{ backgroundColor: colors.coral }}
+        aria-label="Add transaction"
+      >
+        <Plus className="h-6 w-6" />
+      </button>
     </div>
   )
 }

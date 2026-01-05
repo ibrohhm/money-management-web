@@ -49,12 +49,33 @@ export function TransactionDetailDialog({
   const [timeValue, setTimeValue] = useState('')
 
   useEffect(() => {
-    if (transaction && open) {
-      setFormData(transaction)
-      // Split datetime into date and time
-      const [date, time] = transaction.date.split('T')
-      setDateValue(date || '')
-      setTimeValue(time?.substring(0, 5) || '00:00') // Extract HH:mm
+    if (open) {
+      if (transaction) {
+        setFormData(transaction)
+        // Split datetime into date and time
+        const [date, time] = transaction.date.split('T')
+        setDateValue(date || '')
+        setTimeValue(time?.substring(0, 5) || '00:00') // Extract HH:mm
+      } else {
+        // Initialize empty form for new transaction
+        const now = new Date()
+        const date = now.toISOString().split('T')[0]
+        const time = now.toTimeString().substring(0, 5)
+        setDateValue(date)
+        setTimeValue(time)
+        setFormData({
+          id: '',
+          description: '',
+          amount: 0,
+          type: 'expense',
+          category_id: '',
+          category_name: '',
+          account_id: '',
+          account_name: '',
+          date: now.toISOString(),
+          currency: 'IDR'
+        })
+      }
     }
   }, [transaction, open])
 
@@ -108,7 +129,18 @@ export function TransactionDetailDialog({
     }
   }, [open])
 
-  if (!transaction || !formData) return null
+  if (!formData) return null
+
+  const isFormValid = () => {
+    return (
+      formData.description.trim() !== '' &&
+      formData.amount !== 0 &&
+      formData.category_id !== '' &&
+      formData.account_id !== '' &&
+      dateValue !== '' &&
+      timeValue !== ''
+    )
+  }
 
   const handleSave = () => {
     // Combine date and time back into datetime format
@@ -128,7 +160,7 @@ export function TransactionDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-center">Transaction</DialogTitle>
+          <DialogTitle className="text-center">{formData.id === '' ? 'Add' : 'Edit'} Transaction</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -254,7 +286,7 @@ export function TransactionDetailDialog({
         </div>
 
         <DialogFooter>
-          <Button onClick={handleSave}>
+          <Button className="cursor-pointer" onClick={handleSave} disabled={!isFormValid()}>
             Save Changes
           </Button>
         </DialogFooter>

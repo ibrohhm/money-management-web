@@ -1,4 +1,5 @@
 import { Transaction } from '@/lib/types/transactions'
+import { colors } from '@/lib/colors'
 
 interface DailyTransactionsProps {
   date: string
@@ -30,13 +31,13 @@ export function DailyTransactions({ date, transactions, onTransactionClick }: Da
         <div className="flex gap-6 text-sm">
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Income:</span>
-            <span className="font-medium text-green-600">
+            <span className="font-medium" style={{ color: colors.marine }}>
               +{currency} {totalIncome.toFixed(2)}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Expense:</span>
-            <span className="font-medium text-red-600">
+            <span className="font-medium" style={{ color: colors.coral }}>
               -{currency} {totalExpense.toFixed(2)}
             </span>
           </div>
@@ -56,7 +57,10 @@ export function DailyTransactions({ date, transactions, onTransactionClick }: Da
               </div>
             </div>
             <div className="text-right">
-              <span className={transaction.type === "income" ? "font-medium text-green-600" : "font-medium text-red-600"}>
+              <span
+                className="font-medium"
+                style={{ color: transaction.type === "income" ? colors.marine : colors.coral }}
+              >
                 {transaction.type === "income" ? "+" : "-"}
                 {transaction.currency} {Math.abs(transaction.amount).toFixed(2)}
               </span>
