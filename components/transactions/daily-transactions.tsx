@@ -1,19 +1,19 @@
-import { Transaction } from '@/lib/types/transactions'
+import { TransactionResponse } from '@/lib/types/transactions'
 import { colors } from '@/lib/colors'
 
 interface DailyTransactionsProps {
   date: string
-  transactions: Transaction[]
-  onTransactionClick?: (transaction: Transaction) => void
+  transactions: TransactionResponse[]
+  onTransactionClick?: (transaction: TransactionResponse) => void
 }
 
 export function DailyTransactions({ date, transactions, onTransactionClick }: DailyTransactionsProps) {
   const totalIncome = transactions
-    .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0)
+    .filter(t => t.transaction_type === "income")
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0)
 
   const totalExpense = transactions
-    .filter(t => t.type === "expense")
+    .filter(t => t.transaction_type === "expense")
     .reduce((sum, t) => sum + Math.abs(t.amount), 0)
 
   const currency = transactions[0]?.currency || "IDR"
@@ -48,20 +48,20 @@ export function DailyTransactions({ date, transactions, onTransactionClick }: Da
         {transactions.map((transaction) => (
           <div key={transaction.id} className="grid grid-cols-[150px_1fr_150px] items-center gap-4 px-4 py-1 hover:bg-muted/30 cursor-pointer" onClick={() => onTransactionClick?.(transaction)}>
             <div>
-              <p className="font-medium text-sm text-muted-foreground">{transaction.category_name}</p>
+              <p className="font-medium text-sm text-muted-foreground">{transaction.category.name}</p>
             </div>
             <div>
               <p className="font-medium">{transaction.description}</p> 
               <div className="mt-1 text-sm text-muted-foreground">
-                <span>{transaction.account_name}</span>
+                <span>{transaction.account.name}</span>
               </div>
             </div>
             <div className="text-right">
               <span
                 className="font-medium"
-                style={{ color: transaction.type === "income" ? colors.marine : colors.coral }}
+                style={{ color: transaction.transaction_type === "income" ? colors.marine : colors.coral }}
               >
-                {transaction.type === "income" ? "+" : "-"}
+                {transaction.transaction_type === "income" ? "+" : "-"}
                 {transaction.currency} {Math.abs(transaction.amount).toFixed(2)}
               </span>
             </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { DailyTransactions } from "@/components/transactions/daily-transactions"
-import { Transaction, TransactionGroup, ApiTransactionGroupResponse } from '@/lib/types/transactions'
+import { Transaction, TransactionResponse, TransactionGroup, ApiTransactionGroupResponse } from '@/lib/types/transactions'
 import { LoadingOverlay } from "@/components/ui/loading-overlay"
 import { TransactionDetailDialog } from "@/components/transactions/transaction-detail-dialog"
 import { Plus } from "lucide-react"
@@ -19,7 +19,7 @@ export default function TransactionsPage() {
     const fetchTransactions = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`${process.env.NEXT_PUBLIC_MONEY_MANAGEMENT_API_URL}/api/transactions`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_MONEY_MANAGEMENT_API_URL}/api/transaction-groups`)
 
         if (!response.ok) {
           throw new Error(`Failed to fetch transactions: ${response.statusText}`)
@@ -44,8 +44,18 @@ export default function TransactionsPage() {
     fetchTransactions()
   }, [])
 
-  const handleTransactionClick = (transaction: Transaction) => {
-    setSelectedTransaction(transaction)
+  const handleTransactionClick = (transaction: TransactionResponse) => {
+    setSelectedTransaction({
+      id: transaction.id,
+      transaction_at: transaction.transaction_at,
+      description: transaction.description,
+      amount: transaction.amount,
+      user_id: transaction.user_id,
+      category_id: transaction.category.id,
+      account_id: transaction.account.id,
+      transaction_type: transaction.transaction_type,
+      currency: transaction.currency,
+    })
     setDialogOpen(true)
   }
 

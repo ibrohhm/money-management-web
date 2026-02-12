@@ -19,13 +19,13 @@ import {
 } from "@/components/ui/select"
 
 interface Category {
-  id: string
+  id: number
   name: string
   type: string
 }
 
 interface Account {
-  id: string
+  id: number
   name: string
 }
 
@@ -53,7 +53,7 @@ export function TransactionDetailDialog({
       if (transaction) {
         setFormData(transaction)
         // Split datetime into date and time
-        const [date, time] = transaction.date.split('T')
+        const [date, time] = transaction.transaction_at.split('T')
         setDateValue(date || '')
         setTimeValue(time?.substring(0, 5) || '00:00') // Extract HH:mm
       } else {
@@ -65,14 +65,13 @@ export function TransactionDetailDialog({
         setTimeValue(time)
         setFormData({
           id: '',
+          transaction_at: now.toISOString(),
           description: '',
           amount: 0,
-          type: 'expense',
-          category_id: '',
-          category_name: '',
-          account_id: '',
-          account_name: '',
-          date: now.toISOString(),
+          user_id: 0,
+          transaction_type: 'expense',
+          category_id: 0,
+          account_id: 0,
           currency: 'IDR'
         })
       }
@@ -80,11 +79,11 @@ export function TransactionDetailDialog({
   }, [transaction, open])
 
   useEffect(() => {
-    if (formData?.type) {
+    if (formData?.transaction_type) {
       const fetchCategories = async () => {
         try {
           setLoadingCategories(true)
-          const response = await fetch(`${process.env.NEXT_PUBLIC_MONEY_MANAGEMENT_API_URL}/api/categories?type=${formData.type}`)
+          const response = await fetch(`${process.env.NEXT_PUBLIC_MONEY_MANAGEMENT_API_URL}/api/categories?type=${formData.transaction_type}`)
 
           if (!response.ok) {
             throw new Error('Failed to fetch categories')
@@ -102,7 +101,7 @@ export function TransactionDetailDialog({
 
       fetchCategories()
     }
-  }, [formData?.type])
+  }, [formData?.transaction_type])
 
   useEffect(() => {
     if (open) {
@@ -135,8 +134,8 @@ export function TransactionDetailDialog({
     return (
       formData.description.trim() !== '' &&
       formData.amount !== 0 &&
-      formData.category_id !== '' &&
-      formData.account_id !== '' &&
+      formData.category_id !== 0 &&
+      formData.account_id !== 0 &&
       dateValue !== '' &&
       timeValue !== ''
     )
@@ -176,11 +175,11 @@ export function TransactionDetailDialog({
             <div>
               <Label htmlFor="type" className="pb-2">Type</Label>
               <Select
-                value={formData.type}
+                value={formData.transaction_type}
                 onValueChange={(value: "income" | "expense") => {
                   setFormData({
                     ...formData,
-                    type: value,
+                    transaction_type: value,
                     amount: value === "income" ? Math.abs(formData.amount) : -Math.abs(formData.amount)
                   })
                 }}
@@ -202,9 +201,9 @@ export function TransactionDetailDialog({
                 value={Math.abs(formData.amount)}
                 onChange={(e) => setFormData({
                   ...formData,
-                  amount: formData.type === "income" ? parseFloat(e.target.value) : -parseFloat(e.target.value)
+                  amount: formData.transaction_type === "income" ? parseFloat(e.target.value) : -parseFloat(e.target.value)
                 })}
-                className={formData.type === "income" ? "text-green-600" : "text-red-600"}
+                className={formData.transaction_type === "income" ? "text-green-600" : "text-red-600"}
               />
             </div>
           </div>
@@ -212,13 +211,11 @@ export function TransactionDetailDialog({
             <div>
               <Label htmlFor="category" className="pb-2">Category</Label>
               <Select
-                value={formData.category_id}
+                value={String(formData.category_id)}
                 onValueChange={(value) => {
-                  const selectedCategory = categories.find(c => c.id === value)
                   setFormData({
                     ...formData,
-                    category_id: value,
-                    category_name: selectedCategory?.name || ''
+                    category_id: Number(value),
                   })
                 }}
                 disabled={loadingCategories}
@@ -228,7 +225,7 @@ export function TransactionDetailDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
+                    <SelectItem key={category.id} value={String(category.id)}>
                       {category.name}
                     </SelectItem>
                   ))}
@@ -238,13 +235,11 @@ export function TransactionDetailDialog({
             <div>
               <Label htmlFor="account" className="pb-2">Account</Label>
               <Select
-                value={formData.account_id}
+                value={String(formData.account_id)}
                 onValueChange={(value) => {
-                  const selectedAccount = accounts.find(a => a.id === value)
                   setFormData({
                     ...formData,
-                    account_id: value,
-                    account_name: selectedAccount?.name || ''
+                    account_id: Number(value),
                   })
                 }}
                 disabled={loadingAccounts}
@@ -254,7 +249,7 @@ export function TransactionDetailDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {accounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
+                    <SelectItem key={account.id} value={String(account.id)}>
                       {account.name}
                     </SelectItem>
                   ))}

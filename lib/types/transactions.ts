@@ -1,13 +1,27 @@
+import { Category } from "./categories"
+import { Account } from "./accounts"
+
 export interface Transaction {
   id: string
-  date: string
+  transaction_at: string
   description: string
   amount: number
-  category_id: string
-  category_name: string
-  account_id: string
-  account_name: string
-  type: "income" | "expense"
+  user_id: number
+  category_id: number
+  account_id: number
+  transaction_type: string
+  currency: string
+}
+
+export interface TransactionResponse {
+  id: string
+  transaction_at: string
+  description: string
+  amount: number
+  user_id: number
+  category: Category
+  account: Account
+  transaction_type: string
   currency: string
 }
 
@@ -17,7 +31,7 @@ export interface TransactionGroup {
   total_expense: number
   net_total: number
   transaction_count: number
-  transactions: Transaction[]
+  transactions: TransactionResponse[]
 }
 
 export interface ApiTransactionGroupResponse {
